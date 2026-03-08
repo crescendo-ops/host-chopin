@@ -2,13 +2,13 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 TARGET="chopin"
 
 BUILD_ATTR="./nix#nixosConfigurations.${TARGET}.config.system.build.toplevel"
 BUILD_DATE="$(date -u +%Y%m%dT%H%M%SZ)"
-ARTIFACT_DIR="${SCRIPT_DIR}/artifacts"
+ARTIFACT_DIR="${REPO_ROOT}/images/chopin/artifacts"
 CACHE_DIR="${ARTIFACT_DIR}/cache"
 
 mkdir -p "${CACHE_DIR}"

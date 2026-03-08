@@ -1,13 +1,13 @@
 # Chopin Upgrade Artifact
 
-This directory contains a script to build an offline upgrade artifact for an existing `chopin` host.
+This directory stores offline upgrade artifacts and documentation for `chopin`.
 
 ## Script
 
 From repository root:
 
 ```bash
-./images/chopin/build.sh
+./scripts/build-chopin-upgrade-artifact.sh
 ```
 
 What it does:
@@ -27,7 +27,7 @@ What it does:
 1. Build artifact on a builder machine:
 
    ```bash
-   ./images/chopin/build.sh
+   ./scripts/build-chopin-upgrade-artifact.sh
    ```
 
 2. Copy `images/chopin/artifacts/chopin-upgrade-<timestamp>.tar.gz` to `chopin`.
