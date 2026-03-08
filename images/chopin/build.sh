@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+
+TARGET="chopin"
+
+BUILD_ATTR=".#nixosConfigurations.${TARGET}.config.system.build.toplevel"
+BUILD_DATE="$(date -u +%Y%m%dT%H%M%SZ)"
+ARTIFACT_DIR="${SCRIPT_DIR}/.artifacts"
+CACHE_DIR="${ARTIFACT_DIR}/cache"
+
+mkdir -p "${CACHE_DIR}"
+
+cd "${REPO_ROOT}"
+
+echo "Building system closure for ${BUILD_ATTR}"
+SYSTEM_PATH="$(nix build --print-out-paths --no-link "${BUILD_ATTR}")"
+
+echo "Exporting closure to local file cache"
+nix copy --to "file://${CACHE_DIR}" "${SYSTEM_PATH}"
+
+{
+  echo "target=${TARGET}"
+  echo "built_at_utc=${BUILD_DATE}"
+  echo "build_attr=${BUILD_ATTR}"
+  echo "system_path=${SYSTEM_PATH}"
+} > "${ARTIFACT_DIR}/manifest.env"
+
+nix path-info -r "${SYSTEM_PATH}" > "${ARTIFACT_DIR}/closure-paths.txt"
+
+ARCHIVE_PATH="${ARTIFACT_DIR}/${TARGET}-upgrade-${BUILD_DATE}.tar.gz"
+tar -C "${ARTIFACT_DIR}" -czf "${ARCHIVE_PATH}" cache manifest.env closure-paths.txt
+
+echo
+echo "Offline upgrade artifact created:"
+echo "  ${ARCHIVE_PATH}"
+echo
+echo "Tarball contents:"
+echo "  cache/                # file-based binary cache"
+echo "  manifest.env          # system path and metadata"
+echo "  closure-paths.txt     # full closure paths"

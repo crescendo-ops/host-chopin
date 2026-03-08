@@ -1,0 +1,26 @@
+name: Build Chopin Upgrade Artifact
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+
+      - name: Build chopin upgrade artifact
+        run: ./images/chopin/build.sh
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: chopin-upgrade-${{ github.run_id }}
+          path: images/chopin/.artifacts/*.tar.gz
+          if-no-files-found: error
+          retention-days: 14
