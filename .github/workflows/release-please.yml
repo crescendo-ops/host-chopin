@@ -6,6 +6,7 @@ on:
       - main
 
 permissions:
+  actions: write
   contents: write
   pull-requests: write
 
@@ -18,7 +19,53 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run Release Please
+        id: release-please
         uses: googleapis/release-please-action@v4
         with:
           release-type: simple
           package-name: host-chopin
+
+      - name: Prepare and push beta tag
+        id: beta
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
+          RELEASE_PLEASE_VERSION: ${{ steps.release-please.outputs.version }}
+        run: |
+          set -euo pipefail
+
+          base_version="${RELEASE_PLEASE_VERSION:-}"
+
+          if [ -z "${base_version}" ]; then
+            echo "release-please did not provide a version output." >&2
+            exit 1
+          fi
+
+          for i in $(seq 1 1000); do
+            tag="v${base_version}-beta.${i}"
+            if gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${tag}" >/dev/null 2>&1; then
+              continue
+            fi
+
+            gh api \
+              --method POST \
+              "repos/${GITHUB_REPOSITORY}/git/refs" \
+              -f ref="refs/tags/${tag}" \
+              -f sha="${GITHUB_SHA}" >/dev/null
+
+            echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+            echo "name=${tag}" >> "$GITHUB_OUTPUT"
+            exit 0
+          done
+
+          echo "No available beta suffix in range 1..1000 for base version ${base_version}." >&2
+          exit 1
+
+      - name: Publish beta prerelease
+        uses: softprops/action-gh-release@v2
+        with:
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
+          tag_name: ${{ steps.beta.outputs.tag }}
+          name: ${{ steps.beta.outputs.name }}
+          body: ${{ steps.release-please.outputs.body }}
+          prerelease: true
+          make_latest: false
