@@ -89,4 +89,4 @@ jobs:
           TAG_NAME: ${{ steps.beta.outputs.tag }}
         run: |
           set -euo pipefail
-          gh workflow run publish-release-assets.yml --ref main -f tag_name="${TAG_NAME}"
+          gh workflow run publish-release-assets.yml --repo "${GITHUB_REPOSITORY}" --ref main -f tag_name="${TAG_NAME}"
