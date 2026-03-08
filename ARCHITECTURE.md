@@ -6,7 +6,8 @@ This repository manages one NixOS host: `chopin`.
 
 - `nix/flake.nix`: single `nixosConfigurations.chopin` entrypoint
 - `nix/default.nix`: host composition root
-- `nix/hosts/chopin`: hardware/network host-specific files
+- `nix/{disko,hardware-configuration,network}.nix`: host-specific hardware/network files
+- `nix/hardware.md`: host hardware notes
 - `nix/modules/nixos`: local modules composed by `nix/default.nix`
 - `images/chopin`: offline upgrade artifact build logic
 - `.github/workflows`: CI, prerelease, and release automation

@@ -1,9 +1,9 @@
 { lib, pkgs, ... }:
 {
   imports = [
-    ./hosts/chopin/disko.nix
-    ./hosts/chopin/hardware-configuration.nix
-    ./hosts/chopin/network.nix
+    ./disko.nix
+    ./hardware-configuration.nix
+    ./network.nix
     ./modules/nixos/base.nix
     ./modules/nixos/networking.nix
     ./modules/nixos/users.nix
