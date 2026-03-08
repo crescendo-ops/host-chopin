@@ -4,12 +4,12 @@
     ./disko.nix
     ./hardware-configuration.nix
     ./network.nix
-    ./modules/nixos/base.nix
-    ./modules/nixos/networking.nix
-    ./modules/nixos/users.nix
-    ./modules/nixos/ops-tools.nix
-    ./modules/nixos/monitoring.nix
-    ./modules/nixos/virtualization.nix
+    ./modules/base.nix
+    ./modules/networking.nix
+    ./modules/users.nix
+    ./modules/ops-tools.nix
+    ./modules/monitoring.nix
+    ./modules/virtualization.nix
   ];
 
   networking.hostName = "chopin";
