@@ -26,7 +26,7 @@ jobs:
         uses: cachix/install-nix-action@v27
 
       - name: Build chopin upgrade artifact
-        run: ./images/chopin/build.sh
+        run: ./scripts/build-chopin-upgrade-artifact.sh
 
       - name: Generate checksums
         run: |
