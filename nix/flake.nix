@@ -21,7 +21,7 @@
           specialArgs = { inherit self inputs; hostName = "chopin"; };
           modules = [
             inputs.disko.nixosModules.disko
-            ./nix/hosts/chopin
+            ./default.nix
           ];
         };
       };

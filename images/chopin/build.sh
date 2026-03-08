@@ -6,7 +6,7 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
 TARGET="chopin"
 
-BUILD_ATTR=".#nixosConfigurations.${TARGET}.config.system.build.toplevel"
+BUILD_ATTR="./nix#nixosConfigurations.${TARGET}.config.system.build.toplevel"
 BUILD_DATE="$(date -u +%Y%m%dT%H%M%SZ)"
 ARTIFACT_DIR="${SCRIPT_DIR}/artifacts"
 CACHE_DIR="${ARTIFACT_DIR}/cache"

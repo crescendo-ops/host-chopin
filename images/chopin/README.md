@@ -12,7 +12,7 @@ From repository root:
 
 What it does:
 
-1. Builds `.#nixosConfigurations.chopin.config.system.build.toplevel`
+1. Builds `./nix#nixosConfigurations.chopin.config.system.build.toplevel`
 2. Exports the closure into `images/chopin/artifacts/cache`
 3. Writes metadata:
    - `images/chopin/artifacts/manifest.env`
