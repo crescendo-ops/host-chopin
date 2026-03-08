@@ -24,7 +24,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: chopin-upgrade-${{ github.sha }}
-          path: images/chopin/.artifacts/*.tar.gz
+          path: images/chopin/artifacts/*.tar.gz
           if-no-files-found: error
           retention-days: 14
-          include-hidden-files: true

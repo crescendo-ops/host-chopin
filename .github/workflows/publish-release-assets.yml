@@ -24,7 +24,7 @@ jobs:
 
       - name: Generate checksums
         run: |
-          cd images/chopin/.artifacts
+          cd images/chopin/artifacts
           sha256sum *.tar.gz > SHA256SUMS
 
       - name: Upload release assets
@@ -32,5 +32,5 @@ jobs:
         with:
           tag_name: ${{ github.event.release.tag_name }}
           files: |
-            images/chopin/.artifacts/*.tar.gz
-            images/chopin/.artifacts/SHA256SUMS
+            images/chopin/artifacts/*.tar.gz
+            images/chopin/artifacts/SHA256SUMS
