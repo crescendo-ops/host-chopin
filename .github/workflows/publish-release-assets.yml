@@ -33,10 +33,34 @@ jobs:
           cd images/chopin/artifacts
           sha256sum *.tar.gz > SHA256SUMS
 
+      - name: Load release metadata
+        id: release-meta
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ inputs.tag_name || github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+          release_json="$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${TAG_NAME}")"
+
+          release_name="$(echo "${release_json}" | jq -r '.name // .tag_name')"
+          prerelease_flag="$(echo "${release_json}" | jq -r '.prerelease')"
+          release_body="$(echo "${release_json}" | jq -r '.body // ""')"
+
+          {
+            echo "name=${release_name}"
+            echo "prerelease=${prerelease_flag}"
+            echo "body<<EOF"
+            echo "${release_body}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Upload release assets
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ inputs.tag_name || github.event.release.tag_name }}
+          name: ${{ steps.release-meta.outputs.name }}
+          body: ${{ steps.release-meta.outputs.body }}
+          prerelease: ${{ steps.release-meta.outputs.prerelease }}
           files: |
             images/chopin/artifacts/*.tar.gz
             images/chopin/artifacts/SHA256SUMS
