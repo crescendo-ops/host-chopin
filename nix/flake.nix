@@ -1,5 +1,5 @@
 {
-  description = "Home infrastructure: NixOS hosts, VMs, and infra tooling";
+  description = "Chopin host configuration and upgrade artifact tooling";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -21,15 +21,7 @@
           specialArgs = { inherit self inputs; hostName = "chopin"; };
           modules = [
             inputs.disko.nixosModules.disko
-            ./nix/hosts/chopin
-          ];
-        };
-
-        beethoven = lib.nixosSystem {
-          inherit system;
-          specialArgs = { inherit self inputs; hostName = "beethoven"; };
-          modules = [
-            ./nix/hosts/beethoven
+            ./default.nix
           ];
         };
       };
