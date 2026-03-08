@@ -1,28 +1,42 @@
 # Releasing
 
-## Commit and PR naming
+## PR Title Convention
 
-This repository expects Conventional Commit style PR titles because squash-merge commit messages are used for release automation.
+This repository uses Conventional Commit style PR titles because squash merge commit messages drive release automation.
 
 Examples:
 
 - `feat(chopin): add rollback snapshot metadata`
-- `fix(ci): pin nix installer action`
+- `fix(ci): include artifact checksums`
 - `chore: update dependencies`
 
-## Automated flows
+## Versioning Model
 
-- `build-chopin-upgrade-artifact.yml`: builds artifacts for pull requests and manual runs.
-- `prerelease-beta.yml`: on every push to `main`, publishes a prerelease with a `vX.Y.Z-beta.N` tag and attaches build artifacts.
-- `release-please.yml`: manages release PRs and stable GitHub releases from Conventional Commit history.
-- `publish-release-assets.yml`: when a stable release is published, rebuilds and uploads release assets.
+- Stable releases: `vMAJOR.MINOR.PATCH` (Release Please)
+- Beta prereleases: `vMAJOR.MINOR.PATCH-beta.N`
 
-## Required GitHub repository settings
+## Automated Flows
 
-Set these in GitHub to enforce the workflow contract:
+- `build-chopin-upgrade-artifact.yml`
+  - Runs on pull requests and manual dispatch
+  - Builds and uploads artifact for validation
+- `prerelease-beta.yml`
+  - Runs on push to `main`
+  - Builds artifact and publishes a prerelease with `vX.Y.Z-beta.N`
+- `release-please.yml`
+  - Opens/updates release PRs from commit history
+  - Creates stable GitHub releases when release PRs are merged
+- `publish-release-assets.yml`
+  - Runs when a stable release is published
+  - Rebuilds and uploads release assets
 
-- Allow merge method: squash only.
-- Require pull request before merge on `main`.
-- Require status checks (at least `PR Title Lint` and PR build workflow).
-- Require linear history.
-- Optionally require signed commits.
+## Repository Settings
+
+Recommended GitHub settings for `main`:
+
+- Squash merge only
+- Pull request required before merge
+- Required status checks
+- Linear history enabled
+- Force pushes disabled
+- Branch deletion disabled
