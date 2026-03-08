@@ -8,7 +8,10 @@ Single-host NixOS repository for `chopin`.
 - `nix/default.nix`: host composition root for `chopin`
 - `nix/disko.nix`, `nix/hardware-configuration.nix`, `nix/network.nix`: host-specific inputs
 - `nix/modules/*.nix`: reusable local modules
-- `scripts/build-chopin-upgrade-artifact.sh`: offline upgrade artifact builder
+- `scripts/build-chopin-upgrade-artifact.sh`: build offline upgrade artifact
+- `scripts/activate-chopin-artifact.sh`: activate unpacked artifact on target
+- `scripts/install-chopin-anywhere.sh`: install/reinstall via `nixos-anywhere`
+- `scripts/deploy-chopin.sh`: remote `nixos-rebuild` (`switch|boot|test`)
 - `images/chopin/artifacts/`: generated build outputs (gitignored)
 - `hardware.md`: hardware notes
 
@@ -33,9 +36,7 @@ This builds `./nix#nixosConfigurations.chopin.config.system.build.toplevel` and 
 
 ```bash
 tar -xzf chopin-upgrade-<timestamp>.tar.gz
-sudo nix copy --from "file://$PWD/cache" "$(grep '^system_path=' manifest.env | cut -d= -f2-)"
-sudo nix-env -p /nix/var/nix/profiles/system --set "$(grep '^system_path=' manifest.env | cut -d= -f2-)"
-sudo "$(grep '^system_path=' manifest.env | cut -d= -f2-)/bin/switch-to-configuration" switch
+./activate.sh
 ```
 
 ## Install/Reinstall with nixos-anywhere
@@ -43,53 +44,27 @@ sudo "$(grep '^system_path=' manifest.env | cut -d= -f2-)/bin/switch-to-configur
 From repository root:
 
 ```bash
-nix run github:nix-community/nixos-anywhere -- \
-  --build-on remote \
-  --flake "path:$PWD/nix#chopin" \
-  --generate-hardware-config nixos-generate-config ./nix/hardware-configuration.nix \
-  --target-host root@<target-ip-or-dns>
+./scripts/install-chopin-anywhere.sh root@<target-ip-or-dns>
 ```
 
 ## Update From Control Machine
 
 Repo only needs to exist on the control machine (for example your Mac).
 
-Set once per shell:
-
 ```bash
-TARGET=chopin
-TARGET_HOST=root@192.168.1.124
-```
-
-```bash
-nix run nixpkgs#nixos-rebuild -- switch \
-  --flake "path:$PWD/nix#$TARGET" \
-  --build-host "$TARGET_HOST" \
-  --target-host "$TARGET_HOST"
+./scripts/deploy-chopin.sh test root@192.168.1.124
+./scripts/deploy-chopin.sh switch root@192.168.1.124
 ```
 
 Note: `switch` is not sufficient for kernel boot parameter changes (for example
 `amd_iommu=on` / `iommu=pt`). For those, use `boot` and reboot the target:
 
 ```bash
-nix run nixpkgs#nixos-rebuild -- boot \
-  --flake "path:$PWD/nix#$TARGET" \
-  --build-host "$TARGET_HOST" \
-  --target-host "$TARGET_HOST"
-
-ssh "$TARGET_HOST" reboot
+./scripts/deploy-chopin.sh boot root@192.168.1.124
+ssh root@192.168.1.124 reboot
 ```
 
-Safer rollout option first (remote):
-
-```bash
-nix run nixpkgs#nixos-rebuild -- test \
-  --flake "path:$PWD/nix#$TARGET" \
-  --build-host "$TARGET_HOST" \
-  --target-host "$TARGET_HOST"
-```
-
-`--build-host root@...` is the `nixos-rebuild` equivalent of `--build-on remote`.
+`deploy-chopin.sh` uses `--build-host` and `--target-host` on the same remote host.
 
 ## CI and Release
 

@@ -29,9 +29,10 @@ nix copy --to "file://${CACHE_DIR}" "${SYSTEM_PATH}"
 } > "${ARTIFACT_DIR}/manifest.env"
 
 nix path-info -r "${SYSTEM_PATH}" > "${ARTIFACT_DIR}/closure-paths.txt"
+cp "${REPO_ROOT}/scripts/activate-chopin-artifact.sh" "${ARTIFACT_DIR}/activate.sh"
 
 ARCHIVE_PATH="${ARTIFACT_DIR}/${TARGET}-upgrade-${BUILD_DATE}.tar.gz"
-tar -C "${ARTIFACT_DIR}" -czf "${ARCHIVE_PATH}" cache manifest.env closure-paths.txt
+tar -C "${ARTIFACT_DIR}" -czf "${ARCHIVE_PATH}" cache manifest.env closure-paths.txt activate.sh
 
 echo
 echo "Offline upgrade artifact created:"
@@ -41,3 +42,4 @@ echo "Tarball contents:"
 echo "  cache/                # file-based binary cache"
 echo "  manifest.env          # system path and metadata"
 echo "  closure-paths.txt     # full closure paths"
+echo "  activate.sh           # activation helper to run on target"
