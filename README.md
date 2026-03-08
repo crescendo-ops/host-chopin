@@ -69,8 +69,7 @@ ssh root@192.168.1.124 reboot
 ## CI and Release
 
 - PR and manual artifact build: `.github/workflows/build-chopin-upgrade-artifact.yml`
-- Beta prerelease publish on `main`: `.github/workflows/prerelease-beta.yml`
-- Stable release automation: `.github/workflows/release-please.yml`
-- Stable release asset upload: `.github/workflows/publish-release-assets.yml`
+- Stable release automation + beta prerelease publish on `main`: `.github/workflows/release-please.yml`
+- Release asset upload (stable + beta): `.github/workflows/publish-release-assets.yml`
 
 Release policy and merge requirements are documented in `RELEASING.md`.
