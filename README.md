@@ -50,6 +50,47 @@ nix run github:nix-community/nixos-anywhere -- \
   --target-host root@<target-ip-or-dns>
 ```
 
+## Update From Control Machine
+
+Repo only needs to exist on the control machine (for example your Mac).
+
+Set once per shell:
+
+```bash
+TARGET=chopin
+TARGET_HOST=root@192.168.1.124
+```
+
+```bash
+nix run nixpkgs#nixos-rebuild -- switch \
+  --flake "path:$PWD/nix#$TARGET" \
+  --build-host "$TARGET_HOST" \
+  --target-host "$TARGET_HOST"
+```
+
+Note: `switch` is not sufficient for kernel boot parameter changes (for example
+`amd_iommu=on` / `iommu=pt`). For those, use `boot` and reboot the target:
+
+```bash
+nix run nixpkgs#nixos-rebuild -- boot \
+  --flake "path:$PWD/nix#$TARGET" \
+  --build-host "$TARGET_HOST" \
+  --target-host "$TARGET_HOST"
+
+ssh "$TARGET_HOST" reboot
+```
+
+Safer rollout option first (remote):
+
+```bash
+nix run nixpkgs#nixos-rebuild -- test \
+  --flake "path:$PWD/nix#$TARGET" \
+  --build-host "$TARGET_HOST" \
+  --target-host "$TARGET_HOST"
+```
+
+`--build-host root@...` is the `nixos-rebuild` equivalent of `--build-on remote`.
+
 ## CI and Release
 
 - PR and manual artifact build: `.github/workflows/build-chopin-upgrade-artifact.yml`
