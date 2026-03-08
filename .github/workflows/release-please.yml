@@ -54,7 +54,7 @@ jobs:
           fi
 
           for i in $(seq 1 1000); do
-            tag="beta-v${base_version}.${i}"
+            tag="beta-v${base_version}-${i}"
             if gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${tag}" >/dev/null 2>&1; then
               continue
             fi
