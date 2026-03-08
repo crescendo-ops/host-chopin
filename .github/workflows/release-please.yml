@@ -23,7 +23,6 @@ jobs:
         uses: googleapis/release-please-action@v4
         with:
           release-type: simple
-          package-name: host-chopin
 
       - name: Prepare and push beta tag
         id: beta
@@ -36,7 +35,22 @@ jobs:
           base_version="${RELEASE_PLEASE_VERSION:-}"
 
           if [ -z "${base_version}" ]; then
-            echo "release-please did not provide a version output." >&2
+            release_pr_title="$(
+              gh pr list \
+                --repo "${GITHUB_REPOSITORY}" \
+                --base main \
+                --state open \
+                --search "in:title chore(main): release" \
+                --json title \
+                --jq 'map(select(.title | test("^chore\\(main\\): release [0-9]+\\.[0-9]+\\.[0-9]+$"))) | first.title // ""'
+            )"
+            if [ -n "${release_pr_title}" ]; then
+              base_version="$(echo "${release_pr_title}" | sed -E 's/^chore\(main\): release ([0-9]+\.[0-9]+\.[0-9]+)$/\1/')"
+            fi
+          fi
+
+          if [ -z "${base_version}" ]; then
+            echo "Unable to determine base version from release-please output or open release PR." >&2
             exit 1
           fi
 
