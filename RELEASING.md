@@ -20,14 +20,13 @@ Examples:
 - `build-chopin-upgrade-artifact.yml`
   - Runs on pull requests and manual dispatch
   - Builds and uploads artifact for validation
-- `prerelease-beta.yml`
-  - Runs on push to `main`
-  - Builds artifact and publishes a prerelease with `vX.Y.Z-beta.N`
 - `release-please.yml`
+  - Runs on push to `main`
   - Opens/updates release PRs from commit history
   - Creates stable GitHub releases when release PRs are merged
+  - Creates and publishes a beta prerelease with `vX.Y.Z-beta.N`
 - `publish-release-assets.yml`
-  - Runs when a stable release is published
+  - Runs when a GitHub release is published (stable or beta)
   - Rebuilds and uploads release assets
 
 ## Repository Settings
