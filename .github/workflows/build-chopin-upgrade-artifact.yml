@@ -2,11 +2,14 @@ name: Build Chopin Upgrade Artifact
 
 on:
   workflow_dispatch:
+  pull_request:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -20,7 +23,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: chopin-upgrade-${{ github.run_id }}
-          path: images/chopin/.artifacts/*.tar.gz
+          name: chopin-upgrade-${{ github.sha }}
+          path: images/chopin/artifacts/*.tar.gz
           if-no-files-found: error
           retention-days: 14

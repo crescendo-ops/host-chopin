@@ -13,14 +13,14 @@ From repository root:
 What it does:
 
 1. Builds `.#nixosConfigurations.chopin.config.system.build.toplevel`
-2. Exports the closure into `images/chopin/.artifacts/cache`
+2. Exports the closure into `images/chopin/artifacts/cache`
 3. Writes metadata:
-   - `images/chopin/.artifacts/manifest.env`
-   - `images/chopin/.artifacts/closure-paths.txt`
+   - `images/chopin/artifacts/manifest.env`
+   - `images/chopin/artifacts/closure-paths.txt`
 4. Creates a tarball:
-   - `images/chopin/.artifacts/chopin-upgrade-<timestamp>.tar.gz`
+   - `images/chopin/artifacts/chopin-upgrade-<timestamp>.tar.gz`
 
-`images/chopin/.artifacts/` is gitignored.
+`images/chopin/artifacts/` is gitignored.
 
 ## Upgrade an existing chopin
 
@@ -30,7 +30,7 @@ What it does:
    ./images/chopin/build.sh
    ```
 
-2. Copy `images/chopin/.artifacts/chopin-upgrade-<timestamp>.tar.gz` to `chopin`.
+2. Copy `images/chopin/artifacts/chopin-upgrade-<timestamp>.tar.gz` to `chopin`.
 
 3. On `chopin`, unpack:
 
