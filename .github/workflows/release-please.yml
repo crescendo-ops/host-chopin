@@ -73,13 +73,26 @@ jobs:
           echo "No available beta suffix in range 1..1000 for base version ${base_version}." >&2
           exit 1
 
+      - name: Prepare beta release notes
+        id: release-notes
+        run: |
+          set -euo pipefail
+          notes_file="${RUNNER_TEMP}/beta-release-notes.md"
+          printf '%s\n' "${{ steps.release-please.outputs.body }}" > "${notes_file}"
+
+          if ! grep -q '[^[:space:]]' "${notes_file}"; then
+            echo "No release notes generated." > "${notes_file}"
+          fi
+
+          echo "path=${notes_file}" >> "$GITHUB_OUTPUT"
+
       - name: Publish beta prerelease
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
           tag_name: ${{ steps.beta.outputs.tag }}
           name: ${{ steps.beta.outputs.name }}
-          body: ${{ steps.release-please.outputs.body }}
+          body_path: ${{ steps.release-notes.outputs.path }}
           prerelease: true
           make_latest: false
 
