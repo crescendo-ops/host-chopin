@@ -1,5 +1,4 @@
-{ ... }:
-{
+{...}: {
   users.users.root.openssh.authorizedKeys.keys = [
     # Add bootstrap key or remove root SSH access once an admin user exists.
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAVuOKcIS2j32m9jwY32+R4fvctas82v8zRmqZuDRYFY personal-PAR-4WTGP0G6C-20260307"
@@ -8,7 +7,7 @@
 
   users.users.admin = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "libvirtd" ];
+    extraGroups = ["wheel" "libvirtd"];
     initialHashedPassword = "$2y$12$bc.1FoT3wPWLCObhaR254.ZkSkBySysJEp8ne6rBheX2lrrSUkXPW"; # TODO: delete password: "ChangeMeNow-2026!"
     openssh.authorizedKeys.keys = [
       # Add your SSH public key here.

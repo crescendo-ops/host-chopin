@@ -9,37 +9,44 @@
     };
   };
 
-  outputs = inputs@{ self, nixpkgs, ... }:
-    let
-      system = "x86_64-linux";
-      lib = nixpkgs.lib;
-      pkgsFor = system: import nixpkgs { inherit system; };
-    in {
-      nixosConfigurations = {
-        chopin = lib.nixosSystem {
-          inherit system;
-          specialArgs = { inherit self inputs; hostName = "chopin"; };
-          modules = [
-            inputs.disko.nixosModules.disko
-            ./default.nix
-          ];
+  outputs = inputs @ {
+    self,
+    nixpkgs,
+    ...
+  }: let
+    system = "x86_64-linux";
+    lib = nixpkgs.lib;
+    pkgsFor = system: import nixpkgs {inherit system;};
+  in {
+    nixosConfigurations = {
+      chopin = lib.nixosSystem {
+        inherit system;
+        specialArgs = {
+          inherit self inputs;
+          hostName = "chopin";
         };
+        modules = [
+          inputs.disko.nixosModules.disko
+          ./default.nix
+        ];
+      };
+    };
+
+    devShells.${system}.default = let
+      pkgs = pkgsFor system;
+    in
+      pkgs.mkShell {
+        packages = with pkgs; [
+          alejandra
+          git
+          nil
+          nixd
+          sops
+          age
+          terraform
+        ];
       };
 
-      devShells.${system}.default =
-        let pkgs = pkgsFor system;
-        in pkgs.mkShell {
-          packages = with pkgs; [
-            alejandra
-            git
-            nil
-            nixd
-            sops
-            age
-            terraform
-          ];
-        };
-
-      formatter.${system} = (pkgsFor system).alejandra;
-    };
+    formatter.${system} = (pkgsFor system).alejandra;
+  };
 }
