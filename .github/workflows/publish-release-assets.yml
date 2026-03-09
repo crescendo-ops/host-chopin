@@ -29,11 +29,6 @@ jobs:
         shell: bash
         run: ./scripts/build-chopin-upgrade-artifact.sh
 
-      - name: Generate checksums
-        run: |
-          cd images/chopin/artifacts
-          sha256sum *.tar.gz > SHA256SUMS
-
       - name: Load release metadata
         id: release-meta
         env:
@@ -49,11 +44,33 @@ jobs:
 
           {
             echo "name=${release_name}"
+            echo "tag=${TAG_NAME}"
             echo "prerelease=${prerelease_flag}"
             echo "body<<EOF"
             echo "${release_body}"
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
+
+      - name: Prepare release assets
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ steps.release-meta.outputs.tag }}
+        run: |
+          set -euo pipefail
+
+          cd images/chopin/artifacts
+
+          shopt -s nullglob
+          tarballs=( *.tar.gz )
+
+          if [[ "${#tarballs[@]}" -ne 1 ]]; then
+            echo "Expected exactly one upgrade tarball, found ${#tarballs[@]}" >&2
+            ls -la >&2
+            exit 1
+          fi
+
+          release_tarball="chopin-upgrade-${RELEASE_TAG}.tar.gz"
+          mv "${tarballs[0]}" "${release_tarball}"
 
       - name: Upload release assets
         uses: softprops/action-gh-release@v2
@@ -63,5 +80,4 @@ jobs:
           body: ${{ steps.release-meta.outputs.body }}
           prerelease: ${{ steps.release-meta.outputs.prerelease }}
           files: |
-            images/chopin/artifacts/*.tar.gz
-            images/chopin/artifacts/SHA256SUMS
+            images/chopin/artifacts/chopin-upgrade-${{ steps.release-meta.outputs.tag }}.tar.gz
