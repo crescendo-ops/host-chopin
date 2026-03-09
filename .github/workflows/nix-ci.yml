@@ -25,4 +25,6 @@ jobs:
         run: nix run ./nix#formatter.x86_64-linux -- --check .
 
       - name: Evaluate flake checks (no build)
-        run: nix flake check ./nix --no-build --show-trace
+        env:
+          NIXPKGS_ALLOW_UNFREE: "1"
+        run: nix flake check ./nix --no-build --show-trace --impure
