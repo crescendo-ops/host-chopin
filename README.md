@@ -66,6 +66,16 @@ ssh root@192.168.1.124 reboot
 
 `deploy-chopin.sh` uses `--build-host` and `--target-host` on the same remote host.
 
+## Local Pre-commit
+
+Install `pre-commit` (Python package), then install and run hooks from repo root:
+
+```bash
+pipx install pre-commit
+pre-commit install
+pre-commit run --all-files
+```
+
 ## CI and Release
 
 - PR Nix checks (format + flake evaluation): `.github/workflows/nix-ci.yml`
