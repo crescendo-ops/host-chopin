@@ -22,11 +22,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Nix
-        uses: cachix/install-nix-action@v27
-
       - name: Build chopin upgrade artifact
-        run: ./scripts/build-chopin-upgrade-artifact.sh
+        uses: ./.github/actions/build-chopin-upgrade-artifact
 
       - name: Generate checksums
         run: |
