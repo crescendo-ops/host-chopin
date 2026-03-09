@@ -43,7 +43,6 @@
           nixd
           sops
           age
-          terraform
         ];
       };
 
