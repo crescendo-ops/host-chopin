@@ -18,6 +18,14 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate commit message format
+        run: ./scripts/validate-commit-history.sh
+
       - name: Run Release Please
         id: release-please
         uses: googleapis/release-please-action@v4
