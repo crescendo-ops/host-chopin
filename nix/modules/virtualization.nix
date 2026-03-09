@@ -1,10 +1,13 @@
-{ lib, pkgs, ... }:
 {
+  lib,
+  pkgs,
+  ...
+}: {
   virtualisation.libvirtd.enable = true;
 
   programs.virt-manager.enable = false;
 
-  boot.kernelModules = [ "kvm-amd" "kvm-intel" ];
+  boot.kernelModules = ["kvm-amd" "kvm-intel"];
 
   # Upstream libvirt unit uses /usr/bin/sh, which is not present on NixOS.
   systemd.services.virt-secret-init-encryption.serviceConfig.ExecStart = lib.mkForce [

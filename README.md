@@ -66,10 +66,20 @@ ssh root@192.168.1.124 reboot
 
 `deploy-chopin.sh` uses `--build-host` and `--target-host` on the same remote host.
 
+## Local Pre-commit
+
+Install `pre-commit` (Python package), then install and run hooks from repo root:
+
+```bash
+pipx install pre-commit
+pre-commit install
+pre-commit run --all-files
+```
+
 ## CI and Release
 
-- PR and manual artifact build: `.github/workflows/build-chopin-upgrade-artifact.yml`
+- PR Nix checks (format + flake evaluation): `.github/workflows/nix-ci.yml`
 - Stable release automation + beta prerelease publish on `main`: `.github/workflows/release-please.yml`
-- Release asset upload (stable + beta): `.github/workflows/publish-release-assets.yml`
+- Artifact build and release asset upload (manual, stable + beta): `.github/workflows/publish-release-assets.yml`
 
 Release policy and merge requirements are documented in `RELEASING.md`.
