@@ -76,6 +76,13 @@ pre-commit install
 pre-commit run --all-files
 ```
 
+## Commit and PR Title Convention
+
+- Use semantic format with mandatory scope: `<type>(<scope>): <description>`.
+- Optional breaking marker is supported: `<type>(<scope>)!: <description>`.
+- Allowed types: `fix`, `feat`, `chore`, `docs`, `refactor`, `test`, `ci`, `build`, `perf`.
+- Examples: `fix(ci): preserve multiline release notes`, `feat(nix): add host module`.
+
 ## CI and Release
 
 - PR Nix checks (format + flake evaluation): `.github/workflows/nix-ci.yml`
