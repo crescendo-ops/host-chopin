@@ -24,7 +24,19 @@ jobs:
       - name: Check Nix formatting
         run: nix run ./nix#formatter.x86_64-linux -- --check .
 
-      - name: Evaluate flake checks (no build)
+      - name: Validate flake outputs are free-only
+        id: free_check
+        continue-on-error: true
+        run: nix flake check ./nix --no-build --show-trace
+
+      - name: Evaluate flake checks (no build, including unfree dev tooling)
+        if: always()
         env:
           NIXPKGS_ALLOW_UNFREE: "1"
         run: nix flake check ./nix --no-build --show-trace --impure
+
+      - name: Fail when unfree packages are detected
+        if: steps.free_check.outcome == 'failure'
+        run: |
+          echo "::error::Free-only validation failed. Unfree packages are present in flake outputs."
+          exit 1
