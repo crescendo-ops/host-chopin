@@ -17,17 +17,18 @@ Examples:
 
 ## Automated Flows
 
-- `build-chopin-upgrade-artifact.yml`
-  - Runs on pull requests and manual dispatch
-  - Builds and uploads artifact for validation
+- `nix-ci.yml`
+  - Runs on pull requests (including draft PR updates)
+  - Checks Nix formatting and runs flake checks without building outputs
 - `release-please.yml`
   - Runs on push to `main`
   - Opens/updates release PRs from commit history
   - Creates stable GitHub releases when release PRs are merged
   - Creates and publishes a beta prerelease with `vX.Y.Z-beta.N`
 - `publish-release-assets.yml`
-  - Runs when a GitHub release is published (stable or beta)
-  - Rebuilds and uploads release assets
+  - Runs on manual dispatch and when a GitHub release is published (stable or beta)
+  - Builds and uploads validation artifacts on manual runs
+  - Rebuilds and uploads release assets when a release tag is provided
 
 ## Repository Settings
 
