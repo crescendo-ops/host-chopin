@@ -1,4 +1,4 @@
-name: Publish Beta
+name: Release Publish Beta
 
 on:
   workflow_dispatch:
@@ -10,7 +10,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  publish-beta:
+  release-publish-beta:
     runs-on: ubuntu-latest
     steps:
       - name: Prepare and push beta tag
@@ -135,7 +135,7 @@ jobs:
           TAG_NAME: ${{ steps.beta.outputs.tag }}
         run: |
           set -euo pipefail
-          gh workflow run publish-release-assets.yml --repo "${GITHUB_REPOSITORY}" --ref main -f tag_name="${TAG_NAME}"
+          gh workflow run release-publish-assets.yml --repo "${GITHUB_REPOSITORY}" --ref main -f tag_name="${TAG_NAME}"
 
       - name: Comment release PR with beta link
         env:

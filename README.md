@@ -86,7 +86,9 @@ pre-commit run --all-files
 ## CI and Release
 
 - PR Nix checks (format + flake evaluation): `.github/workflows/nix-ci.yml`
-- Stable release automation + beta prerelease publish on `main`: `.github/workflows/release-please.yml`
-- Artifact build and release asset upload (manual, stable + beta): `.github/workflows/publish-release-assets.yml`
+- PR title semantic validation for release automation: `.github/workflows/release-pr-title-lint.yml`
+- Stable release automation on `main`: `.github/workflows/release-please.yml`
+- Beta prerelease publish (manual): `.github/workflows/release-publish-beta.yml`
+- Artifact build and release asset upload (manual, stable + beta): `.github/workflows/release-publish-assets.yml`
 
 Release policy and merge requirements are documented in `RELEASING.md`.

@@ -20,12 +20,18 @@ Examples:
 - `nix-ci.yml`
   - Runs on pull requests (including draft PR updates)
   - Checks Nix formatting and runs flake checks without building outputs
+- `release-pr-title-lint.yml`
+  - Runs on pull request events
+  - Enforces semantic PR titles required by release automation
 - `release-please.yml`
   - Runs on push to `main`
   - Opens/updates release PRs from commit history
   - Creates stable GitHub releases when release PRs are merged
+  - Used with beta publish flow for prerelease tags
+- `release-publish-beta.yml`
+  - Runs on manual dispatch
   - Creates and publishes a beta prerelease with `vX.Y.Z-beta.N`
-- `publish-release-assets.yml`
+- `release-publish-assets.yml`
   - Runs on manual dispatch and when a GitHub release is published (stable or beta)
   - Builds and uploads validation artifacts on manual runs
   - Rebuilds and uploads release assets when a release tag is provided
