@@ -15,6 +15,4 @@
 
 ## Commit Subject Naming
 - Commit subjects must be plain language and describe exactly what was done.
-- Do not use semantic tags in commit subjects (no `feat(...)`, `fix(...)`, `chore(...)`, etc.).
-- Only PR titles use semantic tagging.
-- Prefer short imperative descriptions (for example: `Add python3 to ops-tools systemPackages`).
+- Do not use semantic tags in commit subjects (no `feat(...)`, `fix(...)`, `chore(...)`, etc.). Only PR titles use semantic tagging.
