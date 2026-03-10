@@ -8,7 +8,7 @@ Examples:
 
 - `feat(chopin): add rollback snapshot metadata`
 - `fix(ci): include artifact checksums`
-- `chore: update dependencies`
+- `deps(nix): update dependency pins`
 
 ## Versioning Model
 
@@ -23,6 +23,7 @@ Examples:
 - `release-pr-title-lint.yml`
   - Runs on pull request events
   - Enforces semantic PR titles required by release automation
+  - Allowed types: `feat`, `fix`, `perf`, `deps`, `revert`, `docs`, `style`, `chore`, `refactor`, `test`, `build`, `ci`
 - `release-please.yml`
   - Runs on push to `main`
   - Opens/updates release PRs from commit history

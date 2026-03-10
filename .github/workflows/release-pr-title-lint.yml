@@ -26,10 +26,13 @@ jobs:
           types: |
             feat
             fix
+            perf
+            deps
+            revert
+            style
             chore
             docs
             refactor
-            perf
             test
             ci
             build

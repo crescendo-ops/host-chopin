@@ -80,8 +80,8 @@ pre-commit run --all-files
 
 - Use semantic format with mandatory scope: `<type>(<scope>): <description>`.
 - Optional breaking marker is supported: `<type>(<scope>)!: <description>`.
-- Allowed types: `fix`, `feat`, `chore`, `docs`, `refactor`, `test`, `ci`, `build`, `perf`.
-- Examples: `fix(ci): preserve multiline release notes`, `feat(nix): add host module`.
+- Allowed types: `feat`, `fix`, `perf`, `deps`, `revert`, `docs`, `style`, `chore`, `refactor`, `test`, `build`, `ci`.
+- Examples: `fix(ci): preserve multiline release notes`, `feat(nix): add host module`, `deps(nix): update flake inputs`.
 
 ## CI and Release
 
