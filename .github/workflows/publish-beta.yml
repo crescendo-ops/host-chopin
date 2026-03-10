@@ -6,7 +6,8 @@ on:
 permissions:
   actions: write
   contents: write
-  pull-requests: read
+  issues: write
+  pull-requests: write
 
 jobs:
   publish-beta:
@@ -20,22 +21,30 @@ jobs:
           set -euo pipefail
 
           base_version=""
-          target_sha="${GITHUB_SHA}"
-
-          release_pr_title="$(
+          target_sha=""
+          release_pr_pattern='^chore\(main\): release [0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$'
+          release_pr_json="$(
             gh pr list \
               --repo "${GITHUB_REPOSITORY}" \
               --base main \
               --state open \
-              --json title \
-              --jq 'map(select(.title | test("^chore\\(main\\): release [0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?$"))) | first.title // ""'
+              --json title,headRefOid,number \
+              --jq "map(select(.title | test(\"${release_pr_pattern}\"))) | first // {}"
           )"
-          if [ -n "${release_pr_title}" ]; then
-            base_version="$(echo "${release_pr_title}" | sed -E 's/^chore\(main\): release ([0-9]+\.[0-9]+\.[0-9]+)(-[0-9A-Za-z.-]+)?$/\1/')"
+
+          release_pr_title="$(echo "${release_pr_json}" | jq -r '.title // ""')"
+          target_sha="$(echo "${release_pr_json}" | jq -r '.headRefOid // ""')"
+          release_pr_number="$(echo "${release_pr_json}" | jq -r '.number // ""')"
+
+          if [ -z "${release_pr_title}" ] || [ -z "${target_sha}" ] || [ -z "${release_pr_number}" ]; then
+            echo "Unable to determine release PR details (title, number, head commit) from an open release PR." >&2
+            exit 1
           fi
 
+          base_version="$(echo "${release_pr_title}" | sed -E 's/^chore\(main\): release ([0-9]+\.[0-9]+\.[0-9]+)(-[0-9A-Za-z.-]+)?$/\1/')"
+
           if [ -z "${base_version}" ]; then
-            echo "Unable to determine base version from an open release PR." >&2
+            echo "Unable to determine base version from release PR title: ${release_pr_title}" >&2
             exit 1
           fi
 
@@ -53,6 +62,8 @@ jobs:
 
             echo "tag=${tag}" >> "$GITHUB_OUTPUT"
             echo "name=${tag}" >> "$GITHUB_OUTPUT"
+            echo "target_sha=${target_sha}" >> "$GITHUB_OUTPUT"
+            echo "release_pr_number=${release_pr_number}" >> "$GITHUB_OUTPUT"
             exit 0
           done
 
@@ -83,21 +94,36 @@ jobs:
 
           echo "path=${notes_file}" >> "$GITHUB_OUTPUT"
 
+      - name: Verify beta tag target commit
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
+          TAG_NAME: ${{ steps.beta.outputs.tag }}
+          EXPECTED_SHA: ${{ steps.beta.outputs.target_sha }}
+        run: |
+          set -euo pipefail
+          tag_sha="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${TAG_NAME}" --jq '.object.sha')"
+          if [ "${tag_sha}" != "${EXPECTED_SHA}" ]; then
+            echo "Tag ${TAG_NAME} points to ${tag_sha}, expected ${EXPECTED_SHA}." >&2
+            exit 1
+          fi
+
       - name: Publish beta prerelease
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
           tag_name: ${{ steps.beta.outputs.tag }}
+          target_commitish: ${{ steps.beta.outputs.target_sha }}
           name: ${{ steps.beta.outputs.name }}
           body_path: ${{ steps.release-notes.outputs.path }}
           prerelease: true
           make_latest: false
 
-      - name: Trigger release asset publish workflow
+      - name: Comment release PR with beta link
         env:
           GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
+          RELEASE_PR_NUMBER: ${{ steps.beta.outputs.release_pr_number }}
           TAG_NAME: ${{ steps.beta.outputs.tag }}
-          RUN_REF: ${{ github.ref_name }}
         run: |
           set -euo pipefail
-          gh workflow run publish-release-assets.yml --repo "${GITHUB_REPOSITORY}" --ref "${RUN_REF}" -f tag_name="${TAG_NAME}"
+          release_url="https://github.com/${GITHUB_REPOSITORY}/releases/tag/${TAG_NAME}"
+          gh pr comment "${RELEASE_PR_NUMBER}" --repo "${GITHUB_REPOSITORY}" --body "Beta prerelease published: [${TAG_NAME}](${release_url})"
