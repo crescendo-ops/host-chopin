@@ -37,6 +37,13 @@ Examples:
   - Builds and uploads validation artifacts on manual runs
   - Rebuilds and uploads release assets when a release tag is provided
 
+## Release Notes Inclusion
+
+- `release-please-config.json` explicitly includes all allowed commit types in `changelog-sections`.
+- Result: each allowed type (`feat`, `fix`, `perf`, `deps`, `revert`, `docs`, `style`, `chore`, `refactor`, `test`, `build`, `ci`) both:
+  - appears in release notes
+  - counts as user-facing for opening/updating release PRs
+
 ## Repository Settings
 
 Recommended GitHub settings for `main`:
