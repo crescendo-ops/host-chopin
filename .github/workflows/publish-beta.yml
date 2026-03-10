@@ -6,7 +6,8 @@ on:
 permissions:
   actions: write
   contents: write
-  pull-requests: read
+  issues: write
+  pull-requests: write
 
 jobs:
   publish-beta:
@@ -27,15 +28,16 @@ jobs:
               --repo "${GITHUB_REPOSITORY}" \
               --base main \
               --state open \
-              --json title,headRefOid \
+              --json title,headRefOid,number \
               --jq "map(select(.title | test(\"${release_pr_pattern}\"))) | first // {}"
           )"
 
           release_pr_title="$(echo "${release_pr_json}" | jq -r '.title // ""')"
           target_sha="$(echo "${release_pr_json}" | jq -r '.headRefOid // ""')"
+          release_pr_number="$(echo "${release_pr_json}" | jq -r '.number // ""')"
 
-          if [ -z "${release_pr_title}" ] || [ -z "${target_sha}" ]; then
-            echo "Unable to determine release PR title and head commit from an open release PR." >&2
+          if [ -z "${release_pr_title}" ] || [ -z "${target_sha}" ] || [ -z "${release_pr_number}" ]; then
+            echo "Unable to determine release PR details (title, number, head commit) from an open release PR." >&2
             exit 1
           fi
 
@@ -61,6 +63,7 @@ jobs:
             echo "tag=${tag}" >> "$GITHUB_OUTPUT"
             echo "name=${tag}" >> "$GITHUB_OUTPUT"
             echo "target_sha=${target_sha}" >> "$GITHUB_OUTPUT"
+            echo "release_pr_number=${release_pr_number}" >> "$GITHUB_OUTPUT"
             exit 0
           done
 
@@ -114,3 +117,13 @@ jobs:
           body_path: ${{ steps.release-notes.outputs.path }}
           prerelease: true
           make_latest: false
+
+      - name: Comment release PR with beta link
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
+          RELEASE_PR_NUMBER: ${{ steps.beta.outputs.release_pr_number }}
+          TAG_NAME: ${{ steps.beta.outputs.tag }}
+        run: |
+          set -euo pipefail
+          release_url="https://github.com/${GITHUB_REPOSITORY}/releases/tag/${TAG_NAME}"
+          gh pr comment "${RELEASE_PR_NUMBER}" --repo "${GITHUB_REPOSITORY}" --body "Beta prerelease published: [${TAG_NAME}](${release_url})"
