@@ -129,6 +129,14 @@ jobs:
           prerelease: true
           make_latest: false
 
+      - name: Trigger release asset publish workflow
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
+          TAG_NAME: ${{ steps.beta.outputs.tag }}
+        run: |
+          set -euo pipefail
+          gh workflow run publish-release-assets.yml --repo "${GITHUB_REPOSITORY}" --ref main -f tag_name="${TAG_NAME}"
+
       - name: Comment release PR with beta link
         env:
           GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
