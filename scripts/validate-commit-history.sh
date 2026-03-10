@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-pattern='^(feat|fix|chore|docs|refactor|test|ci|build|perf)\([[:alnum:]_.\/-]+\)(!)?: .+'
+pattern='^(feat|fix|perf|deps|revert|docs|style|chore|refactor|test|build|ci)\([[:alnum:]_.\/-]+\)(!)?: .+'
 range="${1:-HEAD}"
 
 echo "Checking commit subjects in range: ${range}"
@@ -11,6 +11,7 @@ while IFS= read -r subject; do
   if ! [[ "${subject}" =~ ${pattern} ]]; then
     echo "Invalid commit subject: ${subject}" >&2
     echo "Expected format: <type>(<scope>): <description> (optional ! before colon)" >&2
+    echo "Allowed types: feat, fix, perf, deps, revert, docs, style, chore, refactor, test, build, ci" >&2
     invalid=1
   fi
 done < <(git log --format=%s "${range}")
