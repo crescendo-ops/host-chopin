@@ -22,7 +22,7 @@ jobs:
 
           base_version=""
           target_sha=""
-          release_pr_pattern='^chore\(main\): release [0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$'
+          release_pr_pattern='^chore\\(main\\): release [0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?$'
           release_pr_json="$(
             gh pr list \
               --repo "${GITHUB_REPOSITORY}" \
