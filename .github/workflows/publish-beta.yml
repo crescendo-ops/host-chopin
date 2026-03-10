@@ -20,22 +20,29 @@ jobs:
           set -euo pipefail
 
           base_version=""
-          target_sha="${GITHUB_SHA}"
-
-          release_pr_title="$(
+          target_sha=""
+          release_pr_pattern='^chore\(main\): release [0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$'
+          release_pr_json="$(
             gh pr list \
               --repo "${GITHUB_REPOSITORY}" \
               --base main \
               --state open \
-              --json title \
-              --jq 'map(select(.title | test("^chore\\(main\\): release [0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?$"))) | first.title // ""'
+              --json title,headRefOid \
+              --jq "map(select(.title | test(\"${release_pr_pattern}\"))) | first // {}"
           )"
-          if [ -n "${release_pr_title}" ]; then
-            base_version="$(echo "${release_pr_title}" | sed -E 's/^chore\(main\): release ([0-9]+\.[0-9]+\.[0-9]+)(-[0-9A-Za-z.-]+)?$/\1/')"
+
+          release_pr_title="$(echo "${release_pr_json}" | jq -r '.title // ""')"
+          target_sha="$(echo "${release_pr_json}" | jq -r '.headRefOid // ""')"
+
+          if [ -z "${release_pr_title}" ] || [ -z "${target_sha}" ]; then
+            echo "Unable to determine release PR title and head commit from an open release PR." >&2
+            exit 1
           fi
 
+          base_version="$(echo "${release_pr_title}" | sed -E 's/^chore\(main\): release ([0-9]+\.[0-9]+\.[0-9]+)(-[0-9A-Za-z.-]+)?$/\1/')"
+
           if [ -z "${base_version}" ]; then
-            echo "Unable to determine base version from an open release PR." >&2
+            echo "Unable to determine base version from release PR title: ${release_pr_title}" >&2
             exit 1
           fi
 
@@ -92,12 +99,3 @@ jobs:
           body_path: ${{ steps.release-notes.outputs.path }}
           prerelease: true
           make_latest: false
-
-      - name: Trigger release asset publish workflow
-        env:
-          GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
-          TAG_NAME: ${{ steps.beta.outputs.tag }}
-          RUN_REF: ${{ github.ref_name }}
-        run: |
-          set -euo pipefail
-          gh workflow run publish-release-assets.yml --repo "${GITHUB_REPOSITORY}" --ref "${RUN_REF}" -f tag_name="${TAG_NAME}"
