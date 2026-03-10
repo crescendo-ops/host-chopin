@@ -60,6 +60,7 @@ jobs:
 
             echo "tag=${tag}" >> "$GITHUB_OUTPUT"
             echo "name=${tag}" >> "$GITHUB_OUTPUT"
+            echo "target_sha=${target_sha}" >> "$GITHUB_OUTPUT"
             exit 0
           done
 
@@ -90,11 +91,25 @@ jobs:
 
           echo "path=${notes_file}" >> "$GITHUB_OUTPUT"
 
+      - name: Verify beta tag target commit
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
+          TAG_NAME: ${{ steps.beta.outputs.tag }}
+          EXPECTED_SHA: ${{ steps.beta.outputs.target_sha }}
+        run: |
+          set -euo pipefail
+          tag_sha="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${TAG_NAME}" --jq '.object.sha')"
+          if [ "${tag_sha}" != "${EXPECTED_SHA}" ]; then
+            echo "Tag ${TAG_NAME} points to ${tag_sha}, expected ${EXPECTED_SHA}." >&2
+            exit 1
+          fi
+
       - name: Publish beta prerelease
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
           tag_name: ${{ steps.beta.outputs.tag }}
+          target_commitish: ${{ steps.beta.outputs.target_sha }}
           name: ${{ steps.beta.outputs.name }}
           body_path: ${{ steps.release-notes.outputs.path }}
           prerelease: true
